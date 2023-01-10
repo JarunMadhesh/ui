@@ -1,0 +1,4 @@
+customtkinter~=5.0.3
+tkvideoplayer~=2.3
+Pillow~=9.4.0
+RangeSlider~=2021.7.4
