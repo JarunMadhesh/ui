@@ -1,5 +1,6 @@
 import datetime
 import math
+import os
 from time import sleep
 import time
 import tkinter as tk
@@ -115,6 +116,7 @@ class App:
         # Use this to work on analysing steps
         def analyse(progressbar):
             print1()
+
             statuslabel["text"]="Processing..."
             progressbar.step()
             print2()
@@ -126,11 +128,6 @@ class App:
 
     def settingsPage(self):
 
-        def toggleAllEmotions():
-            value = self.ckvar[0].get()
-            for each in self.ckvar:
-                each.set(value=value)
-
         def toggleCategory(number):
             value = self.ckvar[number-4].get()
             for i in range(number-3, number):
@@ -138,27 +135,22 @@ class App:
             checkEachCategory()
 
         def checkEachCategory():
-            self.ckvar[0].set(1)
-            for i in range(1,len(self.ckvar),4):
+            for i in range(0,len(self.ckvar)-1,4):
                 if self.ckvar[i+1].get()==0 or self.ckvar[i+2].get()==0 or self.ckvar[i+3].get()==0:
-                    self.ckvar[0].set(0)
                     self.ckvar[i].set(0)
 
                 if self.ckvar[i+1].get() == 1 and self.ckvar[i+2].get() == 1 and self.ckvar[i+3].get() == 1:
                     self.ckvar[i].set(1)
 
         def buildEachRow(frame, category, moodslist, row, ckvar_count):
-            ctk.CTkLabel(frame, text="|").grid(row=row, column=0, sticky="nw")
-            ctk.CTkLabel(frame, text="|").grid(row=row + 1, column=0, sticky="nw")
-            ctk.CTkLabel(frame, text="|").grid(row=row + 1, column=1, sticky="nw")
             ctk.CTkCheckBox(master=frame, variable=self.ckvar[ckvar_count], command=lambda: toggleCategory(ckvar_count),
-                            text=category, font=("", 12), checkbox_height=18, checkbox_width=18, border_width=1) \
-                .grid(row=row, column=1, sticky="nw")
+                            text=category, font=("", 12), checkbox_height=18, checkbox_width=18, border_width=1, fg_color="black") \
+                .grid(row=row, column=0, sticky="nw")
             ckvar_count += 1
-            column = 2
+            column = 1
             for mood in moodslist:
                 ctk.CTkCheckBox(master=frame, variable=self.ckvar[ckvar_count], command=checkEachCategory,text=mood, font=("", 12),
-                                checkbox_height=18, checkbox_width=18, border_width=1) \
+                                checkbox_height=18, checkbox_width=18, border_width=1, fg_color="black") \
                     .grid(row=row + 1, column=column, sticky="nw")
                 column += 1
                 ckvar_count += 1
@@ -166,14 +158,41 @@ class App:
 
             return row, ckvar_count
 
+        def analyse_all_emotions():
+            print("path = ", self.path)
+            print("video frame rate= ", videoplayer.video_info()["framerate"])
+            print("video frame size= ", videoplayer.video_info()["framesize"])
+
+            # YOUR CODE GOES HERE
+
+            self.changePage("resultsPage")
+
+        def analyse_selected_emotions():
+            selectedMoods = []
+            count = 1
+            for k,v in self.moodsList.items():
+                count+=1
+                for mood in v:
+                    if self.ckvar[count].get() == 1:
+                        selectedMoods.append(mood)
+                    count+=1
+
+            print("selectedMoods = " , selectedMoods)
+
+            # YOUR CODE GOES HERE
+
+            self.changePage("resultsPage")
+
         def buildMoodsCheckBoxes(frame):
             ckvar_count = 0
-            ctk.CTkCheckBox(master=frame, variable=self.ckvar[ckvar_count], command=toggleAllEmotions, text="All Moods", font=("", 12), checkbox_height=18, checkbox_width=18, border_width=1)\
-                .grid(row=0, column=0, sticky="nw")
-            ckvar_count+=1
-            row = 1
+            row = 0
             for (category, moodslist) in self.moodsList.items():
                 row, ckvar_count = buildEachRow(frame, category, moodslist, row, ckvar_count)
+
+            ctk.CTkButton(master=frame, text="Analyse with all emotions", command=analyse_all_emotions, fg_color="black", text_color="white",
+                          hover_color="#333").grid(row=row, column=0, padx=20, pady=20, columnspan=2)
+            ctk.CTkButton(master=frame, text="Analyse with selected emotions", command=analyse_selected_emotions, fg_color="black", text_color="white",
+                          hover_color="#333").grid(row=row, column=2, padx=20, pady=20, columnspan=2)
 
         image = ctk.CTkImage(light_image=Image.open("icons/uploadedIcon.png"), size=(700, 60))
         label = ctk.CTkLabel(master=self.app, image=image, text="", width=700)
@@ -301,6 +320,18 @@ class App:
         self.end_time_in_percentage.trace_variable("w", updateEndSlider)
         rangeSelector.pack()
 
+        def analyse_with_cropped_video():
+            print("path = ", self.path)
+            print("time = ", self.start_time_in_sec,
+                  math.floor(rangeSelector.getValues()[1] * videoplayer.video_info()["duration"]))
+            print("video frame rate= ", videoplayer.video_info()["framerate"])
+            print("video frame size= ", videoplayer.video_info()["framesize"])
+
+            start_time, end_time = self.start_time_in_sec, math.floor(rangeSelector.getValues()[1] * videoplayer.video_info()["duration"])
+            # YOUR CODE GOES HERE
+
+            self.changePage("resultsPage")
+
         bottombar = ctk.CTkFrame(cpane2.frame, fg_color="transparent", width=800, )
         bottombar.pack()
 
@@ -315,7 +346,9 @@ class App:
         text = f'{"0" if hr <= 9 else ""}{hr}:{"0" if min <= 9 else ""}{min}:{"0" if sec <= 9 else ""}{sec}'
         start_time_text.set(text)
 
-        tk.Frame(bottombar, width=200).grid(row=0, column=3)
+        tk.Frame(bottombar, width=300).grid(row=0, column=3)
+        ctk.CTkButton(master=bottombar, text="Analyse",command=analyse_with_cropped_video, fg_color="black", text_color="white",
+                      hover_color="#333").grid(row=0, column=3)
 
         ctk.CTkLabel(master=bottombar, text="End: ").grid(row=0,column=9)
         end_time_text = tk.StringVar()
@@ -337,27 +370,8 @@ class App:
         def backButton():
             self.changePage("initPage")
 
-        def analyse():
-            print("path = ", self.path)
-
-            selectedMoods = []
-            count = 1
-            for k,v in self.moodsList.items():
-                count+=1
-                for mood in v:
-                    if self.ckvar[count].get() == 1:
-                        selectedMoods.append(mood)
-                    count+=1
-
-            print("selectedMoods = " , selectedMoods)
-            print("time = ", self.start_time_in_sec, self.end_time_in_sec if self.end_time_in_sec!=0 else videoplayer.video_info()["duration"])
-            print("video frame rate= ", videoplayer.video_info()["framerate"])
-            print("video frame size= ", videoplayer.video_info()["framesize"])
-
-            self.changePage("resultsPage")
-
         ctk.CTkButton(master=page, text = "Back", command=backButton,  fg_color="black", text_color="white", hover_color="#333").grid(row=0, column=0, padx=20)
-        ctk.CTkButton(master=page, text="Analyse", command=analyse, fg_color="black", text_color="white", hover_color="#333").grid(row=0, column=1, padx=20)
+
 
 
 
@@ -374,17 +388,17 @@ class App:
         ctk.CTkLabel(master=page, font=("Segoe UI", 18), text="Results") \
             .grid(row=0, column=0, padx=20, pady=(12, 0), sticky="nw")
 
-        img = ImageTk.PhotoImage(Image.open("results/Pie-Chart-3.png"))
-        label = tk.Label(page, image=img, height=200, width=300)
-        label.grid(row=1, column=0, sticky="nw", padx=(25,10), pady=10)
+        def showcharts():
+            for path, dir, files in os.walk("results"):
+                print(path, dir, files)
+                for count, file in enumerate(files):
+                    imgpath = os.path.join(path, file)
 
-        img = ImageTk.PhotoImage(Image.open("results/graph.png"))
-        label = tk.Label(page, image=img, height=200, width=300)
-        label.grid(row=1, column=1, sticky="nw", padx=10, pady=10)
+                    img = ImageTk.PhotoImage(Image.open(imgpath))
+                    label = tk.Label(page, image=img, height=200, width=300)
+                    label.grid(row=1 if count<2 else 2, column=count%2, sticky="nw", padx=(25,10), pady=20)
 
-        img = ImageTk.PhotoImage(Image.open("results/Pie-Chart-3.png"))
-        label = tk.Label(page, image=img, height=200, width=300)
-        label.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+        showcharts()
 
         page = ctk.CTkFrame(self.app, fg_color="transparent", width=800, )
         page.grid(row=4, column=0, pady=10, padx=10)
@@ -398,8 +412,12 @@ class App:
             self.path = ""
             self.changePage("initPage")
 
+        def downloadResults():
+            pass
+            # YOUR CODE HERE
+
         ctk.CTkButton(master=page, text="Modify analysis", command=backButton, fg_color="black", text_color="white", hover_color="#333").grid(row=0, column=0, padx=20)
-        ctk.CTkButton(master=page, text="Download results", fg_color="black", text_color="white", hover_color="#333").grid(row=0, column=1, padx=20)
+        ctk.CTkButton(master=page, text="Download results", command =downloadResults, fg_color="black", text_color="white", hover_color="#333").grid(row=0, column=1, padx=20)
         ctk.CTkButton(master=page, text="Use another video", command=initPage, fg_color="black", text_color="white", hover_color="#333").grid(row=1, column=0, columnspan=2, padx=20, pady=10)
 
     def __delete__(self, instance):
@@ -449,7 +467,7 @@ class App:
 
         self.setupEmotionsVariable(1)
 
-        self.changePage("initPage")
+        self.changePage("resultsPage")
 
         self.app.mainloop()
 
