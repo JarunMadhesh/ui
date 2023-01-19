@@ -467,7 +467,7 @@ class App:
 
         self.setupEmotionsVariable(1)
 
-        self.changePage("resultsPage")
+        self.changePage("initPage")
 
         self.app.mainloop()
 
