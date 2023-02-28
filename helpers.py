@@ -8,11 +8,11 @@ from tkinter import ttk
 import customtkinter as ctk
 
 def print1():
-    time.sleep(5)
+    time.sleep(1)
     print(1)
 
 def print2():
-    time.sleep(10)
+    time.sleep(2)
     print(2)
 
 
@@ -59,9 +59,9 @@ class CollapsiblePane(ttk.Frame):
         self._separator = ttk.Separator(self, orient="horizontal")
         self._separator.grid(row=0, column=1, sticky="we")
 
-        self._button = ctk.CTkButton(self, text= "↓",
-                                       command=self._activate, border_width=0, width=20, height=20, corner_radius=30, fg_color="transparent", text_color="black", hover_color="white")
-        self._button.grid(row=0, column=2, padx=10, pady=5)
+        # self._button = ctk.CTkButton(self, text= "↓",
+        #                                command=self._activate, border_width=0, width=20, height=20, corner_radius=30, fg_color="transparent", text_color="black", hover_color="white")
+        # self._button.grid(row=0, column=2, padx=10, pady=5)
 
         frame = ttk.Frame(self, height=5, width=690)
         frame.grid(row=1, columnspan=3)
@@ -69,22 +69,24 @@ class CollapsiblePane(ttk.Frame):
 
         self.frame = ttk.Frame(self)
 
+        self.frame.grid(row=2, column=0, columnspan=3)
+
         # This will call activate function of class
-        self._activate()
+        # self._activate()
 
-    def _activate(self):
-        self._isopen = not self._isopen
-        if not self._isopen:
-
-            # As soon as button is pressed it removes this widget
-            # but is not destroyed means can be displayed again
-            self.frame.grid_forget()
-            # This will change the text of the checkbutton
-            self._button.configure(text="↓")
-
-        elif self._isopen:
-            # increasing the frame area so new widgets+*-
-            # could reside in this container
-            self.frame.grid(row=2, column=0, columnspan=3)
-            self._button.configure(text="↑")
+    # def _activate(self):
+        # self._isopen = not self._isopen
+        # if not self._isopen:
+        #
+        #     # As soon as button is pressed it removes this widget
+        #     # but is not destroyed means can be displayed again
+        #     self.frame.grid_forget()
+        #     # This will change the text of the checkbutton
+        #     self._button.configure(text="↓")
+        #
+        # elif self._isopen:
+        #     # increasing the frame area so new widgets+*-
+        #     # could reside in this container
+        #     self.frame.grid(row=2, column=0, columnspan=3)
+        #     self._button.configure(text="↑")
 
