@@ -40,6 +40,13 @@ class App:
                 self.path = event.data[1:-1]
                 self.changePage("progressPage")
 
+        def dropcsv(event):
+            # run_progress()
+            print(event.data[1:-1])
+            if event.data[1:-1].endswith(".csv"):
+                self.result_path = event.data[1:-1]
+                self.changePage("settingsPage")
+
         def click_frame(_):
             path = tk.filedialog.askopenfilename(title="Select the video", initialdir="/",
                                               filetypes=(('mp4 files','*.mp4'), ("mkv files", "*.mkv"), ("avi files", "*.avi")))
@@ -49,18 +56,26 @@ class App:
                     self.path=path
                     self.changePage("progressPage")
 
-        ctk.CTkLabel(master=self.app , font=("Segoe UI",24), text="Emo-Rooms").pack( padx=10, pady=5, anchor="w")
+        def click_frame_csv(_):
+            path = tk.filedialog.askopenfilename(title="Select the video", initialdir="/")
+            if path:
+                if path.endswith(".csv"):
+                    print(path)
+                    self.path=path
+                    self.changePage("settingsPage")
+
+        ctk.CTkLabel(master=self.app , font=("Segoe UI",24), text="Emo-Rooms").grid(row=0, column=0, columnspan=2, padx=10, pady=5, sticky="n")
         ctk.CTkLabel(master=self.app, font=("Segoe UI",14), text=self.description, wraplength=1500, justify="left")\
-            .pack(pady=5, padx=10, anchor = "nw")
+            .grid(row=1, column=0, columnspan=2, pady=5, padx=10, sticky="nw")
         page = ctk.CTkFrame(self.app, corner_radius=30, border_width=1, fg_color="transparent")
-        page.pack(padx=10, pady=10)
+        page.grid(row=2, column=0,  padx=10, pady=10, sticky="n")
 
         page = ttk.Frame(page, ondrop=drop, padding=20)
-        page.pack(fill="both", expand=True, padx=10, pady=10)
+        page.grid(row=0, column=0,  padx=10, pady=10)
         page.bind("<Button-1>", click_frame)
 
         image = ctk.CTkImage(light_image=Image.open("icons/uploadImage.png"), size=(200, 200))
-        label = ctk.CTkLabel(master=page, image=image, text="", height=220, width=self.app.winfo_screenwidth())
+        label = ctk.CTkLabel(master=page, image=image, text="", height=220, width=self.app.winfo_screenwidth()//2-80)
         # label.minsize((220, 500))
         print(self.app.winfo_screenwidth())
         print(self.app.winfo_screenheight())
@@ -70,6 +85,26 @@ class App:
         ctk.CTkLabel(master=page, text="Upload Video", font=("Segoe UI",14))\
             .pack(pady=5)
         ctk.CTkLabel(master=page, text="Click to browse or drag and drop video in the box", font=("Segoe UI",11))\
+            .pack()
+
+        page = ctk.CTkFrame(self.app, corner_radius=30, border_width=1, fg_color="transparent")
+        page.grid(row=2, column=1, padx=10, pady=10, sticky="NSEW")
+
+        page = ttk.Frame(page, ondrop=dropcsv, padding=20)
+        page.grid(row=0, column=0, padx=10, pady=10)
+        page.bind("<Button-1>", click_frame_csv)
+
+        image = ctk.CTkImage(light_image=Image.open("icons/uploadImage.png"), size=(200, 200))
+        label = ctk.CTkLabel(master=page, image=image, text="", height=220, width=self.app.winfo_screenwidth()//2-80)
+        # label.minsize((220, 500))
+        print(self.app.winfo_screenwidth())
+        print(self.app.winfo_screenheight())
+        label.pack()
+        label.bind("<Button-1>", click_frame_csv)
+
+        ctk.CTkLabel(master=page, text="Upload CSV", font=("Segoe UI", 14)) \
+            .pack(pady=5)
+        ctk.CTkLabel(master=page, text="Click to browse or drag and drop csv in the box", font=("Segoe UI", 11)) \
             .pack()
 
     def progressIndicatorPage(self):
@@ -465,7 +500,7 @@ class App:
         page_1.pack()
 
         # self.result_path
-        self.buildVideoPlayer(self.result_path, page_1, False)
+        self.buildVideoPlayer(self.result_path, page, False)
 
         # page = ctk.CTkFrame(page, fg_color="transparent", width=400, )
         # page.grid(row=2, column=0, pady=10, padx=10)
@@ -541,7 +576,14 @@ class App:
 
         self.setupEmotionsVariable(1)
 
-        self.changePage("settingsPage")
+        self.app.grid_rowconfigure(0, weight=1)
+        self.app.grid_columnconfigure(0, weight=1)
+        self.app = ctk.CTkFrame(self.app, fg_color="transparent")
+        self.app.grid(row=0, column=0)
+        self.app.grid_rowconfigure(0, weight=1)
+        self.app.grid_columnconfigure(0, weight=1)
+
+        self.changePage("initPage")
 
         self.app.mainloop()
 
