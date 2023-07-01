@@ -316,13 +316,13 @@ class App:
 
         def analyse_selected_emotions():
             selectedMoods = []
-            count = 1
-            for k,v in self.moodsList.items():
-                count+=1
+            count = 0
+            for k, v in self.moodsList.items():
+                count += 1
                 for mood in v:
                     if self.ckvar[count].get() == 1:
                         selectedMoods.append(mood)
-                    count+=1
+                    count += 1
 
             print("selectedMoods = " , selectedMoods)
 
@@ -583,7 +583,7 @@ class App:
         self.app.grid_rowconfigure(0, weight=1)
         self.app.grid_columnconfigure(0, weight=1)
 
-        self.changePage("initPage")
+        self.changePage("settingsPage")
 
         self.app.mainloop()
 
